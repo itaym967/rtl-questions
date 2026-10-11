@@ -26,7 +26,7 @@ const visualLine = (line: string): string => {
   // A neutral gap between two runs of the same direction belongs to them.
   const merged: { kind: Kind; text: string }[] = []
   for (let i = 0; i < runs.length; i++) {
-    const run = runs[i]
+    const run = runs[i]!
     const prev = merged[merged.length - 1]
     const next = runs[i + 1]
     if (run.kind === 'N' && prev && next && prev.kind === next.kind) {

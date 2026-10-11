@@ -1,1 +1,6 @@
-{ "name": "rtl-questions", "version": "0.1.0", "description": "Draws Claude's questions (AskUserQuestion) right-to-left when they contain Hebrew or Arabic" }
+{
+  "name": "rtl-questions",
+  "version": "0.2.0",
+  "description": "Shows Claude's questions, and plans awaiting approval, right-to-left (Hebrew/Arabic) in the desktop app",
+  "types": "./types/index.d.ts"
+}
