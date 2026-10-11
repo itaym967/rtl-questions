@@ -77,9 +77,15 @@ export const register: Register = on => {
     const width = Math.max(20, (e.viewport?.columns ?? 70) - 4)
     if (!view.text) return <Text dimColor>{view.error ?? 'אין עדיין תוכנית להצגה.'}</Text>
     return (
-      <Box flexDirection="column">
+      // Full width, so there is room to push each line to the right edge.
+      <Box flexDirection="column" width="100%" alignItems={isDesktop ? 'flex-end' : 'flex-start'}>
         {planLines(view.text, width, isDesktop).map(line => (
-          <Box flexDirection="row" justifyContent={isDesktop && !line.isCode ? 'flex-end' : 'flex-start'}>
+          <Box
+            flexDirection="row"
+            width="100%"
+            alignSelf={line.isCode ? 'flex-start' : 'auto'}
+            justifyContent={isDesktop && !line.isCode ? 'flex-end' : 'flex-start'}
+          >
             <Text bold={line.isHeading} dimColor={line.isCode}>{line.text || ' '}</Text>
           </Box>
         ))}
