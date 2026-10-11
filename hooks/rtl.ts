@@ -6,19 +6,37 @@
 type Kind = 'R' | 'L' | 'N'
 
 const R_CHAR = /[\u0590-\u05FF\u0600-\u06FF\uFB1D-\uFDFF\uFE70-\uFEFF]/
-const L_CHAR = /[\p{L}\p{N}]/u
+const L_CHAR = /\p{L}/u
+const DIGIT = /\p{N}/u
 const MIRROR: Record<string, string> = { '(': ')', ')': '(', '[': ']', ']': '[', '{': '}', '}': '{', '<': '>', '>': '<' }
 
-const kindOf = (c: string): Kind => (R_CHAR.test(c) ? 'R' : L_CHAR.test(c) ? 'L' : 'N')
+const kindOf = (c: string): Kind | 'D' =>
+  R_CHAR.test(c) ? 'R' : L_CHAR.test(c) ? 'L' : DIGIT.test(c) ? 'D' : 'N'
+
+// Digits take the direction of the letters before them (else after them):
+// a left-to-right box pulls digits that touch Hebrew into the Hebrew run, so
+// they have to travel with it.
+const kindsOf = (chars: string[]): Kind[] => {
+  const raw = chars.map(kindOf)
+  const strong = (from: number, step: number): Kind | undefined => {
+    for (let i = from; i >= 0 && i < raw.length; i += step) {
+      const k = raw[i]
+      if (k === 'R' || k === 'L') return k
+    }
+    return undefined
+  }
+  return raw.map((k, i) => (k === 'D' ? (strong(i - 1, -1) ?? strong(i + 1, 1) ?? 'R') : k))
+}
 
 export const hasRtl = (text: unknown): text is string => typeof text === 'string' && R_CHAR.test(text)
 
 const visualLine = (line: string): string => {
   const chars = [...line]
+  const kinds = kindsOf(chars)
   // Maximal runs of one kind.
   const runs: { kind: Kind; text: string }[] = []
-  for (const c of chars) {
-    const k = kindOf(c)
+  for (const [i, c] of chars.entries()) {
+    const k = kinds[i]!
     const last = runs[runs.length - 1]
     if (last && last.kind === k) last.text += c
     else runs.push({ kind: k, text: c })

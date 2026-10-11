@@ -1,6 +1,7 @@
 import { rtl } from './rtl'
 
-export type PlanLine = { text: string; isHeading: boolean; isCode: boolean }
+// `mark` (a bullet or number) and `indent` are drawn beside the text, never in it.
+export type PlanLine = { text: string; mark: string; indent: number; isHeading: boolean; isCode: boolean }
 
 const MARKER = /^(\s*)(#{1,6}\s+|[-*+]\s+|\d+[.)]\s+|>\s*)?(.*)$/
 
@@ -39,7 +40,7 @@ export const planLines = (markdown: string, width: number, reorder: boolean): Pl
       continue
     }
     if (isCode) {
-      out.push({ text: raw, isHeading: false, isCode: true })
+      out.push({ text: raw, mark: '', indent: 0, isHeading: false, isCode: true })
       continue
     }
     const [, indent = '', mark = '', rest = ''] = raw.match(MARKER) ?? []
@@ -50,11 +51,11 @@ export const planLines = (markdown: string, width: number, reorder: boolean): Pl
     const room = Math.max(10, width - indent.length - bullet.length - 1)
     const chunks = rest.trim() === '' ? [''] : wrap(plain(rest), room)
     chunks.forEach((chunk, i) => {
-      const mk = bullet === '' ? '' : i === 0 ? shown : ' '.repeat(shown.length)
-      const text = reorder
-        ? [rtl(chunk) as string, mk].filter(Boolean).join(' ') + indent
-        : indent + [mk, chunk].filter(Boolean).join(' ')
-      out.push({ text, isHeading, isCode: false })
+      const mk = bullet === '' ? '' : i === 0 ? shown : ' '.repeat(shown.length)
+      // On the desktop the mark is drawn in a box of its own, so the bidi
+      // of the line's text cannot pull its digits into the middle.
+      if (reorder) out.push({ text: rtl(chunk) as string, mark: mk, indent: indent.length, isHeading, isCode: false })
+      else out.push({ text: indent + [mk, chunk].filter(Boolean).join(' '), mark: '', indent: 0, isHeading, isCode: false })
     })
   }
   return out

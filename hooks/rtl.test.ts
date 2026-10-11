@@ -7,7 +7,13 @@ test('pure Hebrew: trailing punctuation moves to the front', () => {
 
 test('Hebrew with an English word: runs reversed', () => {
   expect(rtl('מה עם Claude באמצע?')).toBe('?באמצע Claude מה עם')
-  expect(rtl('יש 3 קבצים')).toBe('קבצים 3 יש')
+})
+
+test('digits travel with the letters beside them', () => {
+  // Digits touching Hebrew stay in the Hebrew run, which the box lays out itself.
+  expect(rtl('יש 3 קבצים')).toBe('יש 3 קבצים')
+  expect(rtl('גרסה v2 חדשה')).toBe('חדשה v2 גרסה')
+  expect(rtl('לבדוק את 8 הבדיקות.')).toBe('.לבדוק את 8 הבדיקות')
 })
 
 test('English text is left alone', () => {

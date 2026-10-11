@@ -49,7 +49,8 @@ export const register: Register = on => {
     const { path } = await read($, plan)
     const view = typeof given === 'string' && given.trim() ? { path, text: given } : await loadPlan(p => $.fs.read(p), path)
     await update($, plan, () => view)
-    await $.ui.open({ id: PANE, title: TITLE })
+    const opened = await $.ui.open({ id: PANE, title: TITLE })
+    if (!opened.isPlaced) $.ui.toast(`החלונית לא הוצגה: ${opened.reason}`)
     try {
       return await next(e)
     } finally {
@@ -66,8 +67,13 @@ export const register: Register = on => {
     const { path } = await read($, plan)
     const view = await loadPlan(p => $.fs.read(p), path)
     await update($, plan, () => view)
-    await $.ui.open({ id: PANE, title: TITLE })
-    return { text: 'התוכנית נפתחה בחלונית.' }
+    const opened = await $.ui.open({ id: PANE, title: TITLE })
+    const panes = await $.ui.panes()
+    return {
+      text: opened.isPlaced
+        ? `החלונית מוצגת. ${view.error ?? `קובץ: ${view.path}`}`
+        : `החלונית נפתחה אבל לא מוצגת: ${opened.reason}\nחלוניות פתוחות: ${JSON.stringify(panes)}`,
+    }
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
@@ -87,6 +93,11 @@ export const register: Register = on => {
             justifyContent={isDesktop && !line.isCode ? 'flex-end' : 'flex-start'}
           >
             <Text bold={line.isHeading} dimColor={line.isCode}>{line.text || ' '}</Text>
+            {line.mark !== '' && (
+              <Box marginLeft={1} marginRight={line.indent}>
+                <Text>{line.mark}</Text>
+              </Box>
+            )}
           </Box>
         ))}
       </Box>
