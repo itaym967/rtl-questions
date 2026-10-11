@@ -2,5 +2,6 @@
   "name": "rtl-questions",
   "version": "0.2.0",
   "description": "Shows Claude's questions, and plans awaiting approval, right-to-left (Hebrew/Arabic) in the desktop app",
+  "author": { "name": "itaym967" },
   "types": "./types/index.d.ts"
 }
