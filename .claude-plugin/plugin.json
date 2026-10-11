@@ -1,0 +1,1 @@
+{ "name": "rtl-questions", "version": "0.1.0", "description": "Draws Claude's questions (AskUserQuestion) right-to-left when they contain Hebrew or Arabic" }

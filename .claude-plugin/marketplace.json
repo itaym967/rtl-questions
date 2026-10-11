@@ -1,0 +1,5 @@
+{
+  "name": "rtl-questions-marketplace",
+  "owner": { "name": "itaym967" },
+  "plugins": [{ "name": "rtl-questions", "source": "./" }]
+}
